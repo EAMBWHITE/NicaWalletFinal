@@ -1,13 +1,25 @@
-﻿@using NicaWallet.Models;
+@using NicaWallet.Models;
+@using Microsoft.AspNet.Identity;
 @{
 
     ViewBag.Title = "DashBoard";
     ApplicationDbContext dbContext = new ApplicationDbContext();
-    var accountCount = dbContext.Account.Count();
-    var balance = dbContext.Account.Sum(x => x.Amount);
-    var totalEarning = dbContext.Record.Where(x => x.PaymentType == true).Sum(x => x.Amount);
-    var totalExpenses = dbContext.Record.Where(x => x.PaymentType == false).Sum(x => x.Amount);
-    var expensesByCategory = dbContext.Record.Include("Category").Include("Currency").Where(x => x.PaymentType == false);
+    var userId = User.Identity.GetUserId();
+    var accountUser = dbContext.Account.Where(x => x.UserId == userId);
+    var test = (from x in dbContext.Account
+                where x.UserId == userId
+                select x.AccountId).SingleOrDefault();
+    int acountId = Convert.ToInt32(test);
+    //var accountCount = dbContext.Account.Where(x => x.UserId==userId).Count();
+    //var balance = dbContext.Account.Where(x => x.UserId == userId).Sum(x => x.Amount);
+    //var totalEarning = dbContext.Record.Where(x => x.PaymentType == true && x.).Sum(x => x.Amount);
+    //var totalExpenses = dbContext.Record.Where(x => x.PaymentType == false).Sum(x => x.Amount);
+    //var expensesByCategory = dbContext.Record.Include("Category").Include("Currency").Where(x => x.PaymentType == false);
+    var accountCount = accountUser.Count();
+    var balance = accountUser.Sum(x => x.Amount);
+    var totalEarning = dbContext.Record.Where(x => x.PaymentType == true && x.AccountId == acountId).Sum(x => x.Amount);
+    var totalExpenses = dbContext.Record.Where(x => x.PaymentType == false && x.AccountId == acountId).Sum(x => x.Amount);
+    var expensesByCategory = dbContext.Record.Include("Category").Include("Currency").Where(x => x.PaymentType == false && x.AccountId == acountId);
 }
 
 <!--Start row-->
